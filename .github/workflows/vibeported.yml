@@ -58,21 +58,21 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       # gradlew is committed mode 100755, so no chmod is needed.
+      # `:build` rather than `build`: the leading colon scopes the task to the root project,
+      # leaving the standalone owo-sentinel subproject out. Nothing depends on it either way.
       - name: Build
-        run: ./gradlew build --stacktrace
+        run: ./gradlew :build --stacktrace
 
       - name: List built artifacts
-        run: ls -lh build/libs owo-sentinel/build/libs
+        run: ls -lh build/libs
 
-      # Two publishable projects: the root owo-lib and the owo-sentinel subproject.
-      - name: Upload installable jars
+      - name: Upload installable jar
         uses: actions/upload-artifact@v4
         with:
           name: owo-lib-26.2-${{ github.sha }}
           path: |
             build/libs/*.jar
-            owo-sentinel/build/libs/*.jar
-            !**/*-sources.jar
+            !build/libs/*-sources.jar
           if-no-files-found: error
           retention-days: 30
 
@@ -139,14 +139,14 @@ jobs:
           MAVEN_URL: https://maven.pkg.github.com/${{ github.repository }}
           MAVEN_USER: ${{ github.actor }}
           MAVEN_PASSWORD: ${{ github.token }}
-        run: ./gradlew build publish --stacktrace
+        run: ./gradlew :build :publish --stacktrace
 
       - name: List built artifacts
-        run: ls -lh build/libs owo-sentinel/build/libs
+        run: ls -lh build/libs
 
       # `gh` ships on the runner, so the release needs no third-party action — which keeps
-      # this working under a restricted action allowlist. Uploads every jar from both
-      # projects, release and sources alike.
+      # this working under a restricted action allowlist. Uploads the release jar and the
+      # sources jar.
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -154,4 +154,4 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             --title "${{ steps.ver.outputs.title }}" \
             --generate-notes \
-            build/libs/*.jar owo-sentinel/build/libs/*.jar
+            build/libs/*.jar
