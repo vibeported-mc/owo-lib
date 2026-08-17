@@ -1,0 +1,157 @@
+# Build and release CI for the vibeported fork.
+#
+# Replaces upstream's build.yml, which ran on every push and pull request. Nothing here
+# touches upstream: Maven goes to this repo's GitHub Packages (via the MAVEN_* env vars
+# the build already reads), and files go to this repo's Releases page.
+#
+# Nothing here runs on a branch push. The build job is manual only (workflow_dispatch)
+# and the release job fires only on a pushed tag, so the sole automatic path into CI is
+# creating a release tag. What keeps this off other branches is simply that the file
+# exists on this one.
+name: Vibeported Build & Release
+
+on:
+  # Branch builds never start on their own — run them from the Actions tab, or with
+  # `gh workflow run vibeported.yml --ref <branch>`. This works because the workflow
+  # lives on the default branch; GitHub only offers the Run workflow button for
+  # workflows present there.
+  workflow_dispatch:
+  push:
+    tags:
+      # GitHub filter patterns are globs, not regex, so the exact tag shape cannot be
+      # expressed here. Accept every tag and enforce the real format in the release job,
+      # which fails loudly on a malformed tag rather than quietly publishing the wrong
+      # coordinates. Format: <mod>-<minecraft>-fabric[-build.<n>]
+      #   0.13.1-26.2-fabric            0.13.1-26.2.1-fabric
+      #   0.13.1-26.2-fabric-build.3    0.13.1-26.2.1-fabric-build.12
+      - '*'
+
+# Least privilege by default; the release job widens this for itself only.
+permissions:
+  contents: read
+
+concurrency:
+  group: vibeported-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Manual runs: prove it compiles, keep the downloadable jars for 30 days.
+  build:
+    name: Build (manual)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # build.gradle sets targetJavaVersion = 25.
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      # Caches the Gradle dependency cache and the Loom/Minecraft artifacts between runs.
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # gradlew is committed mode 100755, so no chmod is needed.
+      - name: Build
+        run: ./gradlew build --stacktrace
+
+      - name: List built artifacts
+        run: ls -lh build/libs owo-sentinel/build/libs
+
+      # Two publishable projects: the root owo-lib and the owo-sentinel subproject.
+      - name: Upload installable jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: owo-lib-26.2-${{ github.sha }}
+          path: |
+            build/libs/*.jar
+            owo-sentinel/build/libs/*.jar
+            !**/*-sources.jar
+          if-no-files-found: error
+          retention-days: 30
+
+  # Tag pushes: publish to GitHub Packages Maven and attach the jars to a Release.
+  release:
+    name: Release (tag)
+    # Both conditions matter: workflow_dispatch can be pointed at a tag ref, and a manual
+    # run must never publish or re-release. Only an actual tag push does that.
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # create the release and upload its assets
+      packages: write   # publish to this repo's GitHub Packages Maven registry
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Tag format: <mod>-<minecraft>-fabric[-build.<n>]
+      # The mod part requires three components, Minecraft accepts two or three, and the
+      # build counter is optional. Dashes and dots only: `+` is avoided deliberately, since
+      # Gradle reads a trailing `+` as a dynamic-version wildcard and `+` in a repository
+      # URL path is widely mis-decoded as a space.
+      - name: Parse and validate tag
+        id: ver
+        run: |
+          tag="$GITHUB_REF_NAME"
+          re='^([0-9]+\.[0-9]+\.[0-9]+)-([0-9]+\.[0-9]+(\.[0-9]+)?)-fabric(-build\.([0-9]+))?$'
+          if [[ ! "$tag" =~ $re ]]; then
+            echo "::error::Tag '$tag' must be <mod>-<minecraft>-fabric[-build.<n>], e.g. 0.13.1-26.2-fabric, 0.13.1-26.2.1-fabric or 0.13.1-26.2-fabric-build.3"
+            exit 1
+          fi
+          mod="${BASH_REMATCH[1]}"
+          mc="${BASH_REMATCH[2]}"
+          build="${BASH_REMATCH[5]}"
+          title="owo-lib $mod for Minecraft $mc"
+          if [[ -n "$build" ]]; then
+            title="$title (build $build)"
+          fi
+          {
+            echo "mod=$mod"
+            echo "mc=$mc"
+            echo "build=$build"
+            echo "full=$tag"
+            echo "title=$title"
+          } >> "$GITHUB_OUTPUT"
+          echo "Publishing $tag -> $title"
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # MOD_VERSION overrides the version build.gradle would otherwise derive from
+      # gradle.properties, so the jar filenames and the Maven coordinates both carry the
+      # exact tag. The MAVEN_* vars are the ones build.gradle already reads for its publish
+      # repository — pointed here at this repo's GitHub Packages, so no stored credentials.
+      - name: Build and publish to GitHub Packages Maven
+        env:
+          MOD_VERSION: ${{ steps.ver.outputs.full }}
+          MAVEN_URL: https://maven.pkg.github.com/${{ github.repository }}
+          MAVEN_USER: ${{ github.actor }}
+          MAVEN_PASSWORD: ${{ github.token }}
+        run: ./gradlew build publish --stacktrace
+
+      - name: List built artifacts
+        run: ls -lh build/libs owo-sentinel/build/libs
+
+      # `gh` ships on the runner, so the release needs no third-party action — which keeps
+      # this working under a restricted action allowlist. Uploads every jar from both
+      # projects, release and sources alike.
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "${{ steps.ver.outputs.title }}" \
+            --generate-notes \
+            build/libs/*.jar owo-sentinel/build/libs/*.jar

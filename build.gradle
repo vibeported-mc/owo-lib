@@ -11,7 +11,9 @@ allprojects {
 
     def ENV = System.getenv()
 
-    version = "${project.mod_version}+${rootProject.minecraft_base_version}"
+    // Release builds pass the tag in explicitly, so the jars and the Maven coordinates carry
+    // it verbatim; see .github/workflows/vibeported.yml. Local builds keep the derived version.
+    version = ENV.MOD_VERSION ?: "${project.mod_version}+${rootProject.minecraft_base_version}"
     group = rootProject.maven_group
 
     base {
