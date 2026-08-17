@@ -34,6 +34,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -79,7 +80,7 @@ public class UwuClient implements ClientModInitializer {
             UIContainers.verticalFlow(Sizing.content(), Sizing.content())
                 .child(UIComponents.item(Items.DIAMOND.getDefaultInstance()).margins(Insets.of(3)))
                 .child(UIComponents.label(Component.literal("epic stuff in hud")))
-                .child(UIComponents.entity(Sizing.fixed(50), EntityType.ALLAY, null))
+                .child(UIComponents.entity(Sizing.fixed(50), EntityTypes.ALLAY, null))
                 .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
                 .padding(Insets.of(5))
                 .surface(Surface.PANEL)
@@ -169,7 +170,7 @@ public class UwuClient implements ClientModInitializer {
 
             instance.adapter.rootComponent.child(
                 UIContainers.horizontalFlow(Sizing.content(), Sizing.content())
-                    .child(UIComponents.entity(Sizing.fixed(20), EntityType.ALLAY, null).<EntityComponent<Allay>>configure(component -> {
+                    .child(UIComponents.entity(Sizing.fixed(20), EntityTypes.ALLAY, null).<EntityComponent<Allay>>configure(component -> {
                         component.allowMouseRotation(true)
                             .scale(.75f);
 

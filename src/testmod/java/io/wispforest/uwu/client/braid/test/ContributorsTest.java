@@ -31,6 +31,7 @@ import io.wispforest.owo.braid.widgets.stack.StackBase;
 import io.wispforest.owo.ops.TextOps;
 import io.wispforest.owo.ui.component.EntityComponent;
 import io.wispforest.uwu.items.UwuItems;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -130,7 +131,7 @@ public class ContributorsTest extends StatefulWidget {
                                                                             .copy()
                                                                             .getStyle()
                                                                             .withHoverEvent(new HoverEvent.ShowEntity(new HoverEvent.EntityTooltipInfo(
-                                                                                EntityType.PLAYER,
+                                                                                EntityTypes.PLAYER,
                                                                                 contributor.uuid,
                                                                                 contributor.displayName
                                                                             ))))

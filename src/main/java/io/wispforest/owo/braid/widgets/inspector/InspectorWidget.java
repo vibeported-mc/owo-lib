@@ -28,7 +28,7 @@ import io.wispforest.owo.braid.widgets.splitpane.SplitChild;
 import io.wispforest.owo.braid.widgets.splitpane.SplitPane;
 import io.wispforest.owo.braid.widgets.splitpane.SplitPaneStyle;
 import io.wispforest.owo.braid.widgets.stack.Stack;
-import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
@@ -91,7 +91,7 @@ public class InspectorWidget extends StatefulWidget {
                         return new Box(
                             Color.rgb(0x1d2026),
                             new DefaultLabelStyle(
-                                new LabelStyle(null, null, Style.EMPTY.withFont(new FontDescription.Resource(Minecraft.UNIFORM_FONT)), null),
+                                new LabelStyle(null, null, Style.EMPTY.withFont(new FontDescription.Resource(Identifier.withDefaultNamespace("uniform"))), null),
                                 new SplitPane(
                                     LayoutAxis.HORIZONTAL,
                                     new SplitPaneStyle(1d, null, null, null, null, null),

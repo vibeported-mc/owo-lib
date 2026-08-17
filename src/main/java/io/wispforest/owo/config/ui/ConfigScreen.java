@@ -23,6 +23,7 @@ import io.wispforest.owo.ui.parsing.UIParsing;
 import io.wispforest.owo.ui.util.UISounds;
 import io.wispforest.owo.util.NumberReflection;
 import io.wispforest.owo.util.ReflectionUtils;
+import net.minecraft.locale.Language;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -228,7 +229,7 @@ public class ConfigScreen extends BaseUIModelScreen<FlowLayout> {
                     expanded
                 ).<CollapsibleContainer>configure(nestedContainer -> {
                     final var categoryKey = "text.config." + this.config.name() + ".category." + parentKey.asString();
-                    if (I18n.exists(categoryKey + ".tooltip")) {
+                    if (Language.getInstance().has(categoryKey + ".tooltip")) {
                         nestedContainer.titleLayout().tooltip(Component.translatable(categoryKey + ".tooltip"));
                     }
 
@@ -261,7 +262,7 @@ public class ConfigScreen extends BaseUIModelScreen<FlowLayout> {
                 var tooltipText = new ArrayList<FormattedCharSequence>();
                 var tooltipTranslationKey = option.translationKey() + ".tooltip";
 
-                if (I18n.exists(tooltipTranslationKey)) {
+                if (Language.getInstance().has(tooltipTranslationKey)) {
                     tooltipText.addAll(this.minecraft.font.split(Component.translatable(tooltipTranslationKey), Integer.MAX_VALUE));
                 }
 
@@ -386,7 +387,7 @@ public class ConfigScreen extends BaseUIModelScreen<FlowLayout> {
             shouldRestart.setTrue();
         });
 
-        this.minecraft.setScreen(shouldRestart.booleanValue() ? new RestartRequiredScreen(this.parent) : this.parent);
+        this.minecraft.gui.setScreen(shouldRestart.booleanValue() ? new RestartRequiredScreen(this.parent) : this.parent);
     }
 
     @Override

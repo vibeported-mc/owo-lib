@@ -1,5 +1,6 @@
 package io.wispforest.owo.mixin.ui;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import io.wispforest.owo.ui.base.BaseOwoContainerScreen;
@@ -14,7 +15,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -60,9 +60,16 @@ public abstract class AbstractContainerScreenMixin extends Screen {
         GlStateManager._disableScissorTest();
     }
 
-    @ModifyVariable(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;", ordinal = 0), ordinal = 2)
-    private int doNoThrow(int slotId, @Local() Slot slot) {
-        return (((Object) this instanceof BaseOwoContainerScreen<?, ?>) && slot != null) ? slot.index : slotId;
+    /**
+     * Keeps clicks on a hovered slot from being treated as clicks outside the screen -
+     * owo screens lay their slots out freely, so vanilla's {@code hasClickedOutside}
+     * rectangle check regularly reports a hit on a slot as being outside, which would
+     * turn the click into a throw
+     */
+    @ModifyExpressionValue(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;hasClickedOutside(DDII)Z"))
+    private boolean doNoThrow(boolean clickedOutside, @Local Slot slot) {
+        if (((Object) this instanceof BaseOwoContainerScreen<?, ?>) && slot != null) return false;
+        return clickedOutside;
     }
 
     @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;checkHotbarKeyPressed(Lnet/minecraft/client/input/KeyEvent;)Z"), cancellable = true)

@@ -25,6 +25,7 @@ import io.wispforest.owo.braid.widgets.stack.StackBase;
 import io.wispforest.uwu.client.braid.TestSelector;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -95,11 +96,12 @@ public class UwuBraidItem extends Item {
         return Optional.of(new Tooltip());
     }
 
+    @Environment(EnvType.CLIENT)
     public static void openTestSelector() {
         var settings = new BraidScreen.Settings();
         settings.shouldPause = false;
 
-        Minecraft.getInstance().setScreen(new BraidScreen(settings, new TestSelector()));
+        Minecraft.getInstance().gui.setScreen(new BraidScreen(settings, new TestSelector()));
     }
 
     public record Tooltip() implements TooltipComponent {}
@@ -231,7 +233,7 @@ public class UwuBraidItem extends Item {
 
             @Override
             public void init() {
-                this.cow = new net.minecraft.world.entity.animal.cow.Cow(EntityType.COW, Minecraft.getInstance().level);
+                this.cow = new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW, Minecraft.getInstance().level);
             }
 
             @Override

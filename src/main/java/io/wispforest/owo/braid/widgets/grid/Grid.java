@@ -8,7 +8,7 @@ import io.wispforest.owo.braid.framework.widget.MultiChildInstanceWidget;
 import io.wispforest.owo.braid.framework.widget.Widget;
 import io.wispforest.owo.braid.widgets.basic.Padding;
 import io.wispforest.owo.ui.core.OwoUIGraphics;
-import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
@@ -210,7 +210,7 @@ public class Grid extends MultiChildInstanceWidget {
                 }
 
                 graphics.drawText(
-                    Component.literal(verticalSizes[i] + "px").withStyle(style -> style.withFont(new FontDescription.Resource(Minecraft.UNIFORM_FONT))),
+                    Component.literal(verticalSizes[i] + "px").withStyle(style -> style.withFont(new FontDescription.Resource(Identifier.withDefaultNamespace("uniform")))),
                     0, (float) verticalPos, 1f, Color.WHITE.argb(),
                     OwoUIGraphics.TextAnchor.TOP_RIGHT
                 );
@@ -229,7 +229,7 @@ public class Grid extends MultiChildInstanceWidget {
                 }
 
                 graphics.drawText(
-                    Component.literal(horizontalSizes[i] + "px").withStyle(style -> style.withFont(new FontDescription.Resource(Minecraft.UNIFORM_FONT))),
+                    Component.literal(horizontalSizes[i] + "px").withStyle(style -> style.withFont(new FontDescription.Resource(Identifier.withDefaultNamespace("uniform")))),
                     (float) horizontalPos, 0, 1f, Color.WHITE.argb(),
                     OwoUIGraphics.TextAnchor.BOTTOM_LEFT
                 );

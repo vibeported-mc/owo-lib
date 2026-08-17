@@ -1,6 +1,7 @@
 package io.wispforest.owo.braid.core;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Mth;
 
 public class Color {
@@ -62,8 +63,8 @@ public class Color {
     }
 
     public static Color formatting(ChatFormatting formatting) {
-        var rgb = formatting.getColor();
-        return rgb(rgb != null ? rgb : 0);
+        var rgb = TextColor.fromLegacyFormat(formatting);
+        return rgb(rgb != null ? rgb.getValue() : 0);
     }
 
     public static Color mix(double t, Color a, Color b) {

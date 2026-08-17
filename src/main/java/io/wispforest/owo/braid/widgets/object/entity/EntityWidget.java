@@ -5,6 +5,7 @@ import io.wispforest.owo.braid.framework.BuildContext;
 import io.wispforest.owo.braid.framework.widget.StatelessWidget;
 import io.wispforest.owo.braid.framework.widget.Widget;
 import io.wispforest.owo.braid.framework.widget.WidgetSetupCallback;
+import io.wispforest.owo.util.DisplayEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +19,7 @@ public class EntityWidget extends StatelessWidget {
     public EntityWidget(double scale, Entity entity, @Nullable WidgetSetupCallback<EntityRenderStateWidget> setupCallback) {
         this.scale = scale;
         Preconditions.checkNotNull(entity, "The Entity provided to an EntityWidget cannot be null");
-        this.entity = entity;
+        this.entity = DisplayEntities.ensureRenderable(entity);
         this.setupCallback = setupCallback;
     }
 

@@ -26,7 +26,14 @@ import java.util.function.Supplier;
 public class SharedStateStorage {
 
     private static final Jankson JANKSON = Jankson.builder().build();
-    private static final HashedWheelTimer TIMER = new HashedWheelTimer();
+    // netty's default thread factory produces non-daemon threads, which keep the JVM
+    // alive after the client shuts down - 26.2's shutdown watchdog turns that into a
+    // crash report every time the game is closed
+    private static final HashedWheelTimer TIMER = new HashedWheelTimer(runnable -> {
+        var thread = new Thread(runnable, "owo-shared-state-timer");
+        thread.setDaemon(true);
+        return thread;
+    });
     private static final Map<ShareableState, Entry<?>> ENTRIES = new HashMap<>();
 
     static {

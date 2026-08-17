@@ -40,14 +40,18 @@ public class BraidGraphics extends OwoUIGraphics {
         return braidContext;
     }
 
+    // as of 26.2 GuiGraphicsExtractor's constructor seeds its scissor stack by calling
+    // guiWidth/guiHeight virtually, which reaches these overrides before `surface` has
+    // been assigned - fall back to the window dimensions until it is. `create` replaces
+    // that scissor stack with the parent graphics' one anyway, so the value is discarded
     @Override
     public int guiWidth() {
-        return this.surface.width();
+        return this.surface != null ? this.surface.width() : super.guiWidth();
     }
 
     @Override
     public int guiHeight() {
-        return this.surface.height();
+        return this.surface != null ? this.surface.height() : super.guiHeight();
     }
 
     public void buildRectOutline(double x, double y, double width, double height, RectEdgeBuilder builder) {

@@ -8,11 +8,13 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.CubeMap;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 
 public record CubeMapElementRenderState(
     CubeMap cubeMap,
@@ -63,9 +65,6 @@ public record CubeMapElementRenderState(
         private static GuiGraphicsExtractor dummyContext;
         private float spin;
 
-        protected Renderer(MultiBufferSource.BufferSource vertexConsumers) {
-            super(vertexConsumers);
-        }
 
         @Override
         public Class<CubeMapElementRenderState> getRenderStateClass() {
@@ -73,7 +72,7 @@ public record CubeMapElementRenderState(
         }
 
         @Override
-        protected void renderToTexture(CubeMapElementRenderState state, PoseStack matrices) {
+        protected void renderToTexture(CubeMapElementRenderState state, PoseStack matrices, SubmitNodeCollector submitNodeCollector) {
             if (dummyContext == null) {
                 dummyContext = new GuiGraphicsExtractor(Minecraft.getInstance(), new GuiRenderState(), 0, 0);
             }
@@ -84,7 +83,7 @@ public record CubeMapElementRenderState(
                 CubeMapElementRenderState.outputOverride = new OutputOverride(
                     RenderSystem.outputColorTextureOverride,
                     RenderSystem.outputDepthTextureOverride,
-                    0xFF000000
+                    new Vector4f(0f, 0f, 0f, 1f)
                 );
 
                 // TODO: we should probably investigate syncing this to the actual panorama
@@ -93,7 +92,7 @@ public record CubeMapElementRenderState(
                 Minecraft minecraft = Minecraft.getInstance();
                 if (state.rotate()) {
                     float a = minecraft.getDeltaTracker().getRealtimeDeltaTicks();
-                    float delta = (float) (a * minecraft.gameRenderer.getGameRenderState().optionsRenderState.panoramaSpeed);
+                    float delta = (float) (a * minecraft.gameRenderer.gameRenderState().optionsRenderState.panoramaSpeed);
                     this.spin = Mth.wrapDegrees(this.spin + delta * 0.1F);
                 }
 
@@ -109,5 +108,5 @@ public record CubeMapElementRenderState(
         }
     }
 
-    public record OutputOverride(GpuTextureView color, GpuTextureView depth, int resetColor) {}
+    public record OutputOverride(GpuTextureView color, GpuTextureView depth, Vector4fc resetColor) {}
 }

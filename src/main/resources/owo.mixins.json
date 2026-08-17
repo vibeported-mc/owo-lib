@@ -53,7 +53,8 @@
     "ui.CommandEncoderAccessor",
     "ui.SlotAccessor",
     "ui.SlotMixin",
-    "ui.access.BlockEntityAccessor"
+    "ui.access.BlockEntityAccessor",
+    "ui.access.EntityAccessor"
   ],
   "client": [
     "ClientCommonPacketListenerImplAccessor",
@@ -72,6 +73,7 @@
     "itemgroup.CreativeModeInventoryScreenAccessor",
     "itemgroup.CreativeModeInventoryScreenMixin",
     "itemgroup.EffectsInInventoryMixin",
+    "itemgroup.GuiMixin",
     "itemgroup.MixinCreativeModeInventoryScreenMixin",
     "shader.GlProgramAccessor",
     "text.ClientLanguageMixin",
@@ -84,6 +86,7 @@
     "ui.CubeMapMixin",
     "ui.EditBoxMixin",
     "ui.GuiRendererMixin",
+    "ui.GuiScreenMixin",
     "ui.MinecraftMixin",
     "ui.MultiLineEditBoxMixin",
     "ui.ScreenMixin",
@@ -93,7 +96,6 @@
     "ui.access.CheckboxAccessor",
     "ui.access.EditBoxAccessor",
     "ui.access.EntityRendererAccessor",
-    "ui.access.GlCommandEncoderAccessor",
     "ui.access.GuiGraphicsExtractorAccessor",
     "ui.access.MultiLineEditBoxAccessor",
     "ui.access.MultilineTextFieldAccessor",

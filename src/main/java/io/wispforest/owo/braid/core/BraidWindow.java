@@ -1,5 +1,6 @@
 package io.wispforest.owo.braid.core;
 
+import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.opengl.GlDebug;
 import com.mojang.blaze3d.opengl.GlTexture;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -14,6 +15,7 @@ import io.wispforest.owo.util.EventSource;
 import io.wispforest.owo.util.EventStream;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.mutable.MutableLong;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.system.NativeResource;
@@ -62,7 +64,7 @@ public class BraidWindow implements Surface {
 
         this.framebufferWidth = framebufferWidthOut[0];
         this.framebufferHeight = framebufferHeightOut[0];
-        this.remoteTarget = new TextureTarget("braid window", this.framebufferWidth, this.framebufferHeight, true);
+        this.remoteTarget = new TextureTarget("braid window", this.framebufferWidth, this.framebufferHeight, true, GpuFormat.RGBA8_UNORM);
         this.recreateLocalFbo();
 
         GLFW.glfwSetWindowCloseCallback(this.handle, this.storeNativeResource(GLFWWindowCloseCallback.create(window -> {
@@ -75,7 +77,7 @@ public class BraidWindow implements Surface {
 
             withContext(Minecraft.getInstance().getWindow().handle(), () -> {
                 this.remoteTarget.destroyBuffers();
-                this.remoteTarget = new TextureTarget("braid window", this.framebufferWidth, this.framebufferHeight, true);
+                this.remoteTarget = new TextureTarget("braid window", this.framebufferWidth, this.framebufferHeight, true, GpuFormat.RGBA8_UNORM);
             });
 
             this.recreateLocalFbo();
@@ -183,6 +185,12 @@ public class BraidWindow implements Surface {
     public static BraidWindow create(String title, int width, int height) {
         var handleOut = new MutableLong();
         withContext(0, () -> {
+            // GLFW window hints are global and sticky, and as of 26.2 vanilla creates its
+            // own window with GLFW_VISIBLE off (it shows it later) without ever restoring
+            // the defaults - inheriting that would leave our window created but invisible
+            GLFW.glfwDefaultWindowHints();
+            GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_TRUE);
+
             GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_API);
             GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_NATIVE_CONTEXT_API);
             GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -276,7 +284,7 @@ public class BraidWindow implements Surface {
     public void beginRendering() {
         RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(
             this.remoteTarget.getColorTexture(),
-            0xFF000000,
+            new Vector4f(0f, 0f, 0f, 1f),
             this.remoteTarget.getDepthTexture(),
             1
         );

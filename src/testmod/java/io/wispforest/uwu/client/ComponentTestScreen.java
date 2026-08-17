@@ -6,6 +6,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
@@ -68,7 +69,7 @@ public class ComponentTestScreen extends Screen {
         var verticalAnimation = innerLayout.verticalSizing().animate(350, Easing.SINE, Sizing.content(50));
 
         verticalAnimation.finished().subscribe((direction, looping) -> {
-            minecraft.gui.getChat().addClientSystemMessage(Component.literal("vertical animation finished in direction " + direction.name()));
+            minecraft.gui.hud.getChat().addClientSystemMessage(Component.literal("vertical animation finished in direction " + direction.name()));
         });
 
         final var bruh = UIComponents.box(Sizing.fixed(150), Sizing.fixed(20));
@@ -120,7 +121,7 @@ public class ComponentTestScreen extends Screen {
         );
 
         rootComponent.child(UIContainers.verticalFlow(Sizing.content(), Sizing.content())
-                .child(UIComponents.label(Component.literal("A profound vertical Flow Layout, as well as a leally long text to demonstrate wrapping").withStyle(style -> style.withFont(new FontDescription.Resource(Minecraft.UNIFORM_FONT)))
+                .child(UIComponents.label(Component.literal("A profound vertical Flow Layout, as well as a leally long text to demonstrate wrapping").withStyle(style -> style.withFont(new FontDescription.Resource(Identifier.withDefaultNamespace("uniform"))))
                                 .withStyle(style -> {
                                     return style.withClickEvent(new ClickEvent.CopyToClipboard("yes"))
                                             .withHoverEvent(new HoverEvent.ShowItem(new ItemStackTemplate(Items.SCULK_SHRIEKER)));

@@ -18,6 +18,7 @@ import io.wispforest.owo.braid.widgets.object.Viewer;
 import io.wispforest.owo.braid.widgets.object.entity.EntityDisplayMode;
 import io.wispforest.owo.braid.widgets.object.entity.EntityWidget;
 import io.wispforest.owo.braid.widgets.stack.Stack;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -45,14 +46,14 @@ public class SpinnyGhastTest extends StatefulWidget {
         @Override
         public void init() {
             this.entities = Stream.of(
-                EntityType.HAPPY_GHAST,
-                EntityType.ALLAY,
-                EntityType.COW,
-                EntityType.CREAKING,
-                EntityType.BREEZE,
-                EntityType.COPPER_GOLEM,
-                EntityType.BAMBOO_RAFT,
-                EntityType.ITEM_FRAME
+                EntityTypes.HAPPY_GHAST,
+                EntityTypes.ALLAY,
+                EntityTypes.COW,
+                EntityTypes.CREAKING,
+                EntityTypes.BREEZE,
+                EntityTypes.COPPER_GOLEM,
+                EntityTypes.BAMBOO_RAFT,
+                EntityTypes.ITEM_FRAME
             ).<Entity>map(
                 entityType -> entityType.create(Minecraft.getInstance().level, EntitySpawnReason.MOB_SUMMONED)
             ).toList();

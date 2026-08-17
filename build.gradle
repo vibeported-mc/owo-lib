@@ -1,6 +1,6 @@
 //file:noinspection GradlePackageVersionRange
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -95,6 +95,7 @@ repositories {
     }
     maven { url "https://maven.nucleoid.xyz/" }
     maven { url 'https://maven.wispforest.io' }
+    maven { url 'https://maven.architectury.dev/' }
     maven { url 'https://jitpack.io' }
 }
 
@@ -117,6 +118,7 @@ loom {
             server()
             ideConfigGenerated project.rootProject == project
             name = "Testmod Server"
+            runDir = "run/server"
             source sourceSets.testmod
         }
     }
@@ -125,7 +127,13 @@ loom {
 }
 
 dependencies {
-    localRuntime("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
+    // run with -PnoRei to keep REI (and the Architectury it drags in) out of dev runs
+    if (!project.hasProperty("noRei")) {
+        localRuntime("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
+        // REI pulls Architectury 21.0.2 transitively, whose charTyped wrapper feeds
+        // fabric-screen-api an uninitialised delegate screen and swallows all text input
+        localRuntime("dev.architectury:architectury-fabric:21.0.7")
+    }
     compileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${project.rei_version}") {
         exclude "group": "net.fabricmc.fabric-api"
     }

@@ -30,6 +30,7 @@ import io.wispforest.owo.braid.widgets.scroll.ScrollAnimationSettings;
 import io.wispforest.owo.braid.widgets.scroll.VerticallyScrollable;
 import io.wispforest.owo.braid.widgets.textinput.TextBox;
 import io.wispforest.owo.braid.widgets.textinput.TextEditingController;
+import net.minecraft.resources.Identifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -103,7 +104,7 @@ public class KdlWidgetsTest extends StatefulWidget {
                     new Padding(
                         Insets.all(5),
                         new Label(
-                            new LabelStyle(Alignment.TOP_LEFT, null, Style.EMPTY.withFont(new FontDescription.Resource(Minecraft.UNIFORM_FONT)), false),
+                            new LabelStyle(Alignment.TOP_LEFT, null, Style.EMPTY.withFont(new FontDescription.Resource(Identifier.withDefaultNamespace("uniform"))), false),
                             true,
                             Component.literal(jsonText)
                         )
